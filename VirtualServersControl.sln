@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualServersControl", "VirtualServersControl\VirtualServersControl.csproj", "{CBFD052E-DD83-4F08-AC2B-23EB5251905E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBFD052E-DD83-4F08-AC2B-23EB5251905E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBFD052E-DD83-4F08-AC2B-23EB5251905E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBFD052E-DD83-4F08-AC2B-23EB5251905E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBFD052E-DD83-4F08-AC2B-23EB5251905E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49A4A95F-53EB-4A03-85C5-BF5E49F0E773}
+	EndGlobalSection
+EndGlobal

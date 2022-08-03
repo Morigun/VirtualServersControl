@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Список виртуальных серверов</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <form name="serverForm">
+        <input type="hidden" name="id" value="1"/>
+        <div class="mb-3">
+            <button id="addBtn" type="submit" class="btn btn-sm btn-primary">Add</button>
+            <br />
+            <button id="removeBtn" type="submit" class="btn btn-sm btn-primary">Remove</button>
+        </div>
+        <table id="serversTable" class="table table-condensed table-striper table-bordered">
+            <tr>
+                <td>CurrentDateTime:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>TotalUsageTime:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>VirtualServerId</td>
+                <td>CreateDateTime</td>
+                <td>RemoveDateTime</td>
+                <td>SelectedForRemove</td>
+            </tr>
+            <tbody></tbody>
+        </table>
+
+        <script>
+            function add_content_to_cell(table_selector, row_number, cell_number, content) {
+                table = document.getElementById(table_selector);
+                table_row = table.getElementsByTagName("tr")[row_number];
+                table_cell = table_row.getElementsByTagName("td")[cell_number];
+                table_cell.innerHTML = content;
+            }
+
+            function dateToString(date) {
+                return date.toISOString().
+                    replace(/T/, ' ').
+                    replace(/\..+/, '')
+            }
+
+            function getCurrentDate(GMT) {
+                return new Date(new Date().getTime() + (60 * GMT * 60 * 1000));
+            }
+
+            function setCurrentTime() {
+                add_content_to_cell("serversTable", 0, 1, dateToString(getCurrentDate(3)));
+            }
+
+            async function getVirtualServers() {
+                const response = await fetch("api/servers", {
+                    method: "GET",
+                    headers: { "Accept": "application/json" }
+                });
+                if (response.ok === true) {
+                    const servers = await response.json();
+                    const rows = document.querySelector("tbody");
+                    servers.forEach(server => rows.appendChild(row(server)));
+                }
+                else {
+                    const error = await response.json();
+                    console.log(error.message);
+                }
+            }
+
+            async function getUsageTime() {
+                const response = await fetch("api/getUsageTime", {
+                    method: "GET",
+                    headers: { "Accept": "text/html" }
+                });
+                if (response.ok === true) {
+                    const usageTime = await response.text();
+                    add_content_to_cell("serversTable", 1, 1, usageTime);
+                }
+                else {
+                    const error = await response.json();
+                    console.log(error.message);
+                }
+            }
+
+            async function createServer() {
+
+                const response = await fetch("api/servers", {
+                    method: "POST",
+                    headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                    body: JSON.stringify({})
+                });
+                if (response.ok === true) {
+                    const server = await response.json();
+                    document.querySelector("tbody").append(row(server));
+                }
+                else {
+                    const error = await response.json();
+                    console.log(error.message);
+                }
+            }
+
+            async function selectForRemove(id) {
+                const response = await fetch("api/selectForRemove" + id, {
+                    method: "GET"
+                });
+                if (response.ok === true) {
+                    var server = await response.json();
+                    document.querySelector("tr[data-rowid='" + server.virtualServerID + "']").replaceWith(row(server));
+                }
+                else {
+                    const error = await response.json();
+                    console.log(error.message);
+                }
+            }
+
+            async function removeSelected() {
+                const response = await fetch("api/removeSelected", {
+                    method: "GET",
+                });
+                if (response.ok === true) {
+                    servers = await response.json();
+                    servers.forEach(function (server) {
+                        document.querySelector("tr[data-rowid='" + server.virtualServerID + "']").replaceWith(row(server));
+                    });
+                    
+                }
+                else {
+                    const error = await response.json();
+                    console.log(error.message);
+                }
+            }
+
+            function row(server) {
+
+                const tr = document.createElement("tr");
+                tr.setAttribute("data-rowid", server.virtualServerID);
+
+                const virtualServerIDTd = document.createElement("td");
+                virtualServerIDTd.append(server.virtualServerID);
+                tr.append(virtualServerIDTd);
+
+                const createDateTd = document.createElement("td");
+                createDateTd.append(dateToString(new Date(server.createDateTime)));
+                tr.append(createDateTd);
+
+                const removeDateTd = document.createElement("td");
+                removeDateTd.append(server.removeDateTime == null ? "" : dateToString(new Date(server.removeDateTime)));
+                tr.append(removeDateTd);
+
+                const selectedForRemoveCb = document.createElement("input");
+                selectedForRemoveCb.type = "checkbox";
+                selectedForRemoveCb.checked = server.selectedForRemove;
+                selectedForRemoveCb.addEventListener("click", e => {
+                    e.preventDefault();
+                    selectForRemove(server.virtualServerID);
+                });
+                tr.append(selectedForRemoveCb);
+
+                return tr;
+            }
+
+            addBtn = document.querySelector("button[id^=addBtn]");
+            addBtn.addEventListener("click", e => {
+                e.preventDefault();
+                createServer();
+                setCurrentTime();
+                getUsageTime();
+            });
+            removeBtn = document.querySelector("button[id^=removeBtn]");
+            removeBtn.addEventListener("click", e => {
+                e.preventDefault();
+                removeSelected();
+                setCurrentTime();
+                getUsageTime();
+            });
+
+            setCurrentTime();
+            getUsageTime();
+            getVirtualServers();
+        </script>
+    </form>
+</body>
+</html>
